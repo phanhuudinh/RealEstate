@@ -1,4 +1,5 @@
 ﻿@model XinkRealEstate.Models.Category
+@using XinkRealEstate.Models
 
 @{
     ViewBag.Title = "Create";
@@ -6,11 +7,23 @@
 
 <h2>Create</h2>
 
-
-@using (Html.BeginForm()) 
+@{Html.EnableClientValidation(false);}
+@using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
+    List<Category> ctgs = ViewBag.categories;
+    List<SelectListItem> states = new List<SelectListItem>();
+
+    states.Add(new SelectListItem { Text = "", Value = "-1", Selected = true });
+
+    if (ctgs != null)
+    {
+        foreach (Category c in ctgs)
+        {
+            states.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
+        }
+    }
+
     <div class="form-horizontal">
         <h4>Category</h4>
         <hr />
@@ -24,26 +37,10 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.Level, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Level, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Level, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
             @Html.LabelFor(model => model.ParentCategoryId, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.ParentCategoryId, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.DropDownListFor(model => model.ParentCategoryId, states, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.ParentCategoryId, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.PictureId, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.PictureId, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.PictureId, "", new { @class = "text-danger" })
             </div>
         </div>
 
@@ -58,8 +55,10 @@
         <div class="form-group">
             @Html.LabelFor(model => model.DisplayOrder, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.DisplayOrder, new { htmlAttributes = new { @class = "form-control" } })
+                @{ Html.EnableClientValidation(false); }
+                @Html.EditorFor(model => model.DisplayOrder, new { htmlAttributes = new { @class = "form-control", @Value="0" } })
                 @Html.ValidationMessageFor(model => model.DisplayOrder, "", new { @class = "text-danger" })
+                @{ Html.EnableClientValidation(true); }
             </div>
         </div>
 
@@ -68,22 +67,6 @@
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.CreateOn, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.CreateOn, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.CreateOn, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.UpdateOn, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.UpdateOn, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.UpdateOn, "", new { @class = "text-danger" })
             </div>
         </div>
 
@@ -100,5 +83,10 @@
 </div>
 
 @section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
+    @*@Scripts.Render("~/bundles/jqueryval")*@
+    <script>
+        $(function () {
+            $("#DisplayOrder").rules("remove", "required");
+        })
+    </script>
 }

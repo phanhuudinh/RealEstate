@@ -31,11 +31,18 @@ namespace XinkRealEstate.Controllers
             var Data = db.Categories;
             // TODO: Order
             string searchkey = querry.search?.value??"";
-            var DataSearch = Data.Where(d => d.Name.Contains(searchkey));
+            var DataSearch = Data.Where(d => d.Name.Contains(searchkey) || d.Code.Contains(searchkey));
             var DataQuery = DataSearch.OrderBy(d => d.Id)
                 .Skip(querry.start)
                 .Take(querry.length).ToList()
                 .Select(d => new CategoryDto(d)).ToList();
+            //foreach (var item in DataQuery)
+            //{
+            //    foreach (var item2 in DataQuery)
+            //    {
+
+            //    }
+            //}
             var dataConvert = new DataTableResult<CategoryDto>(querry.draw, Data.Count(), DataSearch.Count(), DataQuery);
             var result = JsonConvert.SerializeObject(dataConvert);
             return Content(result, "application/json");
@@ -59,6 +66,9 @@ namespace XinkRealEstate.Controllers
         // GET: Category/Create
         public ActionResult Create()
         {
+            var categories = db.Categories.Where(c => c.Level < 2).ToList();
+            ViewBag.categories = categories;
+            TempData["categories"] = categories;
             return View();
         }
 
@@ -67,10 +77,23 @@ namespace XinkRealEstate.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Name,Level,ParentCategoryId,PictureId,Description,DisplayOrder,Code,CreateOn,UpdateOn")] Category category)
+        public ActionResult Create([Bind(Include = "Id,Name,ParentCategoryId,PictureId,Description,DisplayOrder,Code")] Category category)
         {
             if (ModelState.IsValid)
             {
+                category.CreateOn = DateTime.Now;
+                category.UpdateOn = DateTime.Now;
+
+                if (category.ParentCategoryId >= 0)
+                {
+                    var parent = db.Categories.Where(c => c.Id == category.ParentCategoryId).FirstOrDefault();
+                    category.Level = parent.Level + 1;
+                }
+                else
+                {
+                    category.Level = 0;
+                }
+
                 db.Categories.Add(category);
                 db.SaveChanges();
                 return RedirectToAction("Index");
