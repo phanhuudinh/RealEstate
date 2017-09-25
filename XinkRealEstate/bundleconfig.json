@@ -1,0 +1,8 @@
+[
+  {
+    "outputFileName": "Content/AdminLTE/bower_components/datatables.net/js/dataTables.treeGrid.min.js",
+    "inputFiles": [
+      "Content/AdminLTE/bower_components/datatables.net/js/dataTables.treeGrid.js"
+    ]
+  }
+]

@@ -11,18 +11,7 @@
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    List<Category> ctgs = ViewBag.categories;
-    List<SelectListItem> states = new List<SelectListItem>();
-
-    states.Add(new SelectListItem { Text = "", Value = "-1", Selected = true });
-
-    if (ctgs != null)
-    {
-        foreach (Category c in ctgs)
-        {
-            states.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
-        }
-    }
+    List<SelectListItem> categories = ViewBag.categories as List<SelectListItem>;
 
     <div class="form-horizontal">
         <h4>Category</h4>
@@ -39,7 +28,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.ParentCategoryId, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownListFor(model => model.ParentCategoryId, states, new { @class = "form-control" })
+                @Html.DropDownListFor(model => model.ParentCategoryId, categories, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.ParentCategoryId, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -79,6 +68,7 @@
 }
 
 <div>
+    @Html.ActionLink("Category", "Index", "Category")
     @Html.ActionLink("Back to List", "Index")
 </div>
 

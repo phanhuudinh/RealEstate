@@ -61,6 +61,8 @@ namespace XinkRealEstate
             bundles.Add(new ScriptBundle("~/AdminLTE/js/dataTables").Include(
                       // dataTables
                       $"~/Content/AdminLTE/bower_components/datatables.net/js/jquery.dataTables.{MIN}js",
+                      // dataTables treeGrid
+                      $"~/Content/AdminLTE/bower_components/datatables.net/js/dataTables.treeGrid.{MIN}js",
                       // dataTables-bootstrap
                       $"~/Content/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.{MIN}js"));
 
@@ -72,6 +74,7 @@ namespace XinkRealEstate
                       $"~/Content/AdminLTE/bower_components/moment/min/moment.min.js",
                       // dataTables-bootstrap
                       $"~/Content/AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.{MIN}js"));
+            //
 
         }
     }

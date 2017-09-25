@@ -40,6 +40,9 @@ namespace XinkRealEstate.DTOs.Categories
         [JsonProperty("updateOn")]
         public DateTime UpdateOn { get; set; }
 
+        /// <summary>
+        /// Children of category, use in tree grid ONLY
+        /// </summary>
         [JsonProperty("children")]
         public List<CategoryDto> Children { get; set; }
 
