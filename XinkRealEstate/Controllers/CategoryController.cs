@@ -17,8 +17,9 @@ namespace XinkRealEstate.Controllers
 {
     public class CategoryController : Controller
     {
-        #region Actions
         const int MAX_CATEGORY_LEVEL = 2;
+
+        #region Actions
         private RealEstateContext db = new RealEstateContext();
 
         // GET: Category
@@ -34,17 +35,22 @@ namespace XinkRealEstate.Controllers
             // TODO: Order
             string searchkey = querry.search?.value ?? "";
             var DataSearch = Data.Where(d => d.Name.Contains(searchkey) || d.Code.Contains(searchkey));
-            var DataQuery = DataSearch.OrderBy(d => d.Id)
+            var DataQuery = DataSearch.OrderBy(d => d.DisplayOrder)
                 .Skip(querry.start)
                 .Take(querry.length).ToList()
                 .Select(d => new CategoryDto(d)).ToList();
+
             FillTree(DataQuery);
-            var test = GetTreeCategories(-1, DataQuery);
-            var testConv = new DataTableResult<CategoryDto>(querry.draw, Data.Count(), DataSearch.Count(), test);
-            var testresult = JsonConvert.SerializeObject(testConv);
+
+            var categrories = GetTreeCategories(-1, DataQuery);
+
+            var categoriesDto = new DataTableResult<CategoryDto>(querry.draw, Data.Count(), DataSearch.Count(), categrories);
+
+            var result = JsonConvert.SerializeObject(categoriesDto);
+
             var dataConvert = new DataTableResult<CategoryDto>(querry.draw, Data.Count(), DataSearch.Count(), DataQuery);
-            var result = JsonConvert.SerializeObject(dataConvert);
-            return Content(testresult, "application/json");
+
+            return Content(result, "application/json");
         }
 
         // GET: Category/Details/5
@@ -155,8 +161,13 @@ namespace XinkRealEstate.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             Category category = db.Categories.Find(id);
-            db.Categories.Remove(category);
+
+            var listRemove = new List<Category>();
+            DeleteTree(category, listRemove);
+
+            db.Categories.RemoveRange(listRemove);
             db.SaveChanges();
+
             return RedirectToAction("Index");
         }
 
@@ -172,11 +183,21 @@ namespace XinkRealEstate.Controllers
 
         #region Methods
 
+        /// <summary>
+        /// Create a list option categories for select box
+        /// </summary>
+        /// <returns></returns>
         List<SelectListItem> SelectValueForCategory()
         {
-            var category = new Category { Id = -1, Name = "", Level = MAX_CATEGORY_LEVEL + 1 };
+            var category = new Category { Id = -1, Name = "", Level = MAX_CATEGORY_LEVEL + 1, ParentCategoryId = -1 };
             return SelectValueForCategory(category);
         }
+
+        /// <summary>
+        /// Create a list option categories for select box
+        /// </summary>
+        /// <param name="category">The category had selected before</param>
+        /// <returns></returns>
         List<SelectListItem> SelectValueForCategory(Category category)
         {
             var categoriesCanBeParent = db.Categories.Where(c => c.Level < category.Level);
@@ -194,6 +215,12 @@ namespace XinkRealEstate.Controllers
             return categories;
         }
 
+        /// <summary>
+        /// Build category tree
+        /// </summary>
+        /// <param name="parentId"></param>
+        /// <param name="baseTree"></param>
+        /// <returns></returns>
         List<CategoryDto> GetTreeCategories (int parentId, List<CategoryDto> baseTree)
         {
             if(baseTree.Count == 0)
@@ -213,6 +240,10 @@ namespace XinkRealEstate.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Fill tree where have no parent after query
+        /// </summary>
+        /// <param name="categories"></param>
         void FillTree(List<CategoryDto> categories)
         {
             var appendItems = new List<CategoryDto>();
@@ -235,15 +266,20 @@ namespace XinkRealEstate.Controllers
             }
         }
 
-        //void UpdateChildLevel(Category parent)
-        //{
-        //    var childrent = db.Categories.Where(c => c.ParentCategoryId == parent.Id);
-        //    foreach (var item in childrent)
-        //    {
-        //        item.Level = parent.Level + 1;
-        //    }
-        //}
-
+        /// <summary>
+        /// Delete category and all its children 
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="listRemove"></param>
+        void DeleteTree(Category root, List<Category> listRemove)
+        {
+            var children = db.Categories.Where(c => c.ParentCategoryId == root.Id).ToList();
+            foreach (var item in children)
+            {
+                DeleteTree(item, listRemove);
+            }
+            listRemove.Add(root);
+        }
         #endregion
     }
 }

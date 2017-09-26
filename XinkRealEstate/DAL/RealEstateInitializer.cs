@@ -13,7 +13,7 @@ namespace XinkRealEstate.DAL
         {
             var categories = new List<Category>
             {
-                new Category{Id = 0, Name="Loại Hình BĐS ", Code="BDS_TYPE ", DisplayOrder=0, Level=1, ParentCategoryId= -1, CreateOn=DateTime.Now, UpdateOn=DateTime.Now},
+                new Category{Id = 0, Name="Loại Hình BĐS ", Code="BDS_TYPE ", DisplayOrder=0, Level=0, ParentCategoryId= -1, CreateOn=DateTime.Now, UpdateOn=DateTime.Now},
                 new Category{Id = 1, Name="Nhà", Code="BDS_TYPE_NHA", DisplayOrder=1, Level=1, ParentCategoryId= 0, CreateOn=DateTime.Now, UpdateOn=DateTime.Now},
                 new Category{Id = 2, Name="Đất ", Code="BDS_TYPE_DAT", DisplayOrder=1, Level=1, ParentCategoryId= 0, CreateOn=DateTime.Now, UpdateOn=DateTime.Now},
                 new Category{Id = 3, Name="Hướng", Code="BDS_DIRECTION ", DisplayOrder=1, Level=0, ParentCategoryId= -1, CreateOn=DateTime.Now, UpdateOn=DateTime.Now},
