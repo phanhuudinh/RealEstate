@@ -40,6 +40,9 @@ namespace XinkRealEstate.DTOs.Categories
         [JsonProperty("updateOn")]
         public DateTime UpdateOn { get; set; }
 
+        [JsonProperty("visible")]
+        public bool Visible { get; set; }
+
         /// <summary>
         /// Children of category, use in tree grid ONLY
         /// </summary>
@@ -58,6 +61,7 @@ namespace XinkRealEstate.DTOs.Categories
             Code = c.Code;
             CreateOn = c.CreateOn;
             UpdateOn = c.UpdateOn;
+            Visible = c.Visible;
         }
     }
 }

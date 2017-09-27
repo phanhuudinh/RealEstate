@@ -82,8 +82,11 @@
 
             var resetTreeGridRows = function (index) {
                 var indexes = [];
-                if (index) {
+                if (index instanceof Number) {/*add:param ary,fix:[if(index)...]'index===0' @autor:sdjkjkjjk*/
                     indexes.push(index);
+                }
+                else if (index instanceof Array) {
+                    indexes = index;
                 }
                 else {
                     for (var prop in treeGridRows) {
@@ -92,9 +95,18 @@
                         }
                     }
                 }
+                /*add:before modify treeGridRows .@autor:sdjkjkjjk*/
+                var oldTreeGridRowsItem = {};
+                for (var it in treeGridRows) {
+                    if (it * 1 === index)
+                        continue;
+                    oldTreeGridRowsItem[it] = dataTable.row(it).node();
+                }
                 indexes.forEach(function (index) {
                     var subRows = treeGridRows[index];
                     if (subRows && subRows.length) {
+
+
                         subRows.forEach(function (node) {
                             dataTable.row($(node)).remove();
                             $(node).remove();
@@ -104,8 +116,20 @@
                             $(td).removeClass('treegrid-control-open').addClass('treegrid-control');
                             $(td).html('').append(expandIcon.clone());
                         });
+
+
                     }
                 });
+                /*add:after modify treeGridRows .@autor:sdjkjkjjk*/
+                for (var it in treeGridRows) {
+                    var newIndex = dataTable.rows($(oldTreeGridRowsItem[it])).indexes()[0];
+                    treeGridRows[newIndex] = treeGridRows[it];
+                    if (newIndex !== it * 1) {
+                        delete treeGridRows[it];
+                        $(dataTable.row("[parent-index='" + it + "']").node()).attr('parent-index', newIndex);
+                    }
+
+                }
             };
 
             var resetEvenOddClass = function (dataTable) {
@@ -123,7 +147,7 @@
 
                 // record selected indexes
                 var selectedIndexes = [];
-                select && (selectedIndexes = dataTable.rows({selected: true}).indexes().toArray());
+                select && (selectedIndexes = dataTable.rows({ selected: true }).indexes().toArray());
 
                 var row = dataTable.row(this);
                 var index = row.index();
@@ -163,7 +187,7 @@
             // Collapse TreeGrid
             dataTable.on('click', 'td.treegrid-control-open', function (e) {
                 var selectedIndexes = [];
-                select && (selectedIndexes = dataTable.rows({selected: true}).indexes().toArray());
+                select && (selectedIndexes = dataTable.rows({ selected: true }).indexes().toArray());
 
                 var td = $(dataTable.cell(this).node());
                 var layer = parseInt(td.find('span').css('margin-left') || 0, 10) / sLeft;
@@ -173,7 +197,8 @@
                 td.html('').append(icon);
 
                 var index = dataTable.row(this).index();
-                resetTreeGridRows(index);
+                var indexAry = getChildrenCollapseIndexs(dataTable, index);/*fix:index ary @autor:sdjkjkjjk*/
+                resetTreeGridRows(indexAry);
                 resetEvenOddClass(dataTable);
                 select && setTimeout(function () {
                     dataTable.rows(selectedIndexes).select();
@@ -224,6 +249,29 @@
             });
         }
     });
+    function getChildrenCollapseIndexs(dataTable, index) {
+        var ret = [];
+
+        var $filted = $(dataTable.rows('[parent-index="' + index + '"]').nodes());
+        ret.push(index);
+
+        var ary = [];
+        do {
+            ary = [];
+            for (var i = 0 ; i < $filted.length ; i++) {
+                var f = $filted[i];
+                var parentIndex = dataTable.rows(f).indexes()[0];
+                var $filted2 = $(dataTable.rows('[parent-index="' + parentIndex + '"]').nodes());
+                if ($filted2.length > 0) {
+                    ret.push(parentIndex);
+                    ary = ary.concat($filted2);
+                }
+            }
+            $.extend($filted, ary, true);
+        } while (ary.length > 0);
+
+        return ret;
+    }
 
     function selectParent(dataTable, index) {
         var row = dataTable.row(index);
@@ -232,9 +280,9 @@
             parentIndex = +parentIndex;
             var selector = '[parent-index="' + parentIndex + '"]';
             var allChildRows = dataTable.rows(selector).nodes();
-            var selectedChildRows = dataTable.rows(selector, {selected: true}).nodes();
+            var selectedChildRows = dataTable.rows(selector, { selected: true }).nodes();
             if (allChildRows.length === selectedChildRows.length) {
-                var parentRow = dataTable.row(parentIndex, {selected: false});
+                var parentRow = dataTable.row(parentIndex, { selected: false });
                 parentRow.select();
                 if (parentRow.node()) {
                     selectParent(dataTable, parentIndex);
@@ -244,7 +292,7 @@
     }
 
     function selectChildren(dataTable, index) {
-        var rows = dataTable.rows('[parent-index="' + index + '"]', {selected: false});
+        var rows = dataTable.rows('[parent-index="' + index + '"]', { selected: false });
         var childIndexes = rows.indexes().toArray();
         if (childIndexes.length) {
             rows.select();
@@ -259,7 +307,7 @@
         var parentIndex = $(row.node()).attr('parent-index');
         if (parentIndex != null) {
             parentIndex = +parentIndex;
-            var parentRow = dataTable.row(parentIndex, {selected: true});
+            var parentRow = dataTable.row(parentIndex, { selected: true });
             parentRow.deselect();
             if (parentRow.node()) {
                 deselectParent(dataTable, parentIndex);
@@ -268,7 +316,7 @@
     }
 
     function deselectChildren(dataTable, index) {
-        var rows = dataTable.rows('[parent-index="' + index + '"]', {selected: true});
+        var rows = dataTable.rows('[parent-index="' + index + '"]', { selected: true });
         var childIndexes = rows.indexes().toArray();
         if (childIndexes.length) {
             rows.deselect();

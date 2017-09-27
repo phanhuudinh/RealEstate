@@ -1372,6 +1372,7 @@
     <Content Include="Content\AdminLTE\bower_components\moment\LICENSE" />
     <Content Include="Content\AdminLTE\bower_components\moment\README.md" />
     <None Include="bundleconfig.json" />
+    <None Include="Properties\PublishProfiles\WebsiteBDS.pubxml" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />

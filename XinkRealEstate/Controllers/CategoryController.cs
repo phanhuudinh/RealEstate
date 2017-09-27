@@ -35,14 +35,14 @@ namespace XinkRealEstate.Controllers
             // TODO: Order
             string searchkey = querry.search?.value ?? "";
             var DataSearch = Data.Where(d => d.Name.Contains(searchkey) || d.Code.Contains(searchkey));
-            var DataQuery = DataSearch.OrderBy(d => d.DisplayOrder)
-                .Skip(querry.start)
-                .Take(querry.length).ToList()
+            var DataQuery = DataSearch.OrderBy(d => d.DisplayOrder).ToList()
                 .Select(d => new CategoryDto(d)).ToList();
 
             FillTree(DataQuery);
 
-            var categrories = GetTreeCategories(-1, DataQuery);
+            var categrories = GetTreeCategories(-1, DataQuery)
+                .Skip(querry.start)
+                .Take(querry.length).ToList();
 
             var categoriesDto = new DataTableResult<CategoryDto>(querry.draw, Data.Count(), DataSearch.Count(), categrories);
 
@@ -76,11 +76,9 @@ namespace XinkRealEstate.Controllers
         }
 
         // POST: Category/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Name,ParentCategoryId,PictureId,Description,DisplayOrder,Code")] Category category)
+        public ActionResult Create(Category category)
         {
             if (ModelState.IsValid)
             {
@@ -189,7 +187,7 @@ namespace XinkRealEstate.Controllers
         /// <returns></returns>
         List<SelectListItem> SelectValueForCategory()
         {
-            var category = new Category { Id = -1, Name = "", Level = MAX_CATEGORY_LEVEL + 1, ParentCategoryId = -1 };
+            var category = new Category { Id = -1, Name = "", Level = MAX_CATEGORY_LEVEL, ParentCategoryId = -1 };
             return SelectValueForCategory(category);
         }
 
@@ -223,12 +221,13 @@ namespace XinkRealEstate.Controllers
         /// <returns></returns>
         List<CategoryDto> GetTreeCategories (int parentId, List<CategoryDto> baseTree)
         {
-            if(baseTree.Count == 0)
+            List<CategoryDto> result = new List<CategoryDto>();
+
+            if (baseTree == null || baseTree.Count == 0)
             {
-                return null;
+                return result;
             }
 
-            List<CategoryDto> result = new List<CategoryDto>();
             foreach (var item in baseTree)
             {
                 if(item.ParentCategoryId == parentId)

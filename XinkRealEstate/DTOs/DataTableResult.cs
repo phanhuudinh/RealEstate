@@ -20,6 +20,11 @@ namespace XinkRealEstate.DTOs
 
         public DataTableResult(int Draw, int RecordsTotal, int RecordsFiltered, List<T> Data)
         {
+            if (Data == null)
+            {
+                Data = new List<T>();
+            }
+
             this.Draw = Draw;
             this.RecordsTotal = RecordsTotal;
             this.RecordsFiltered = RecordsFiltered;

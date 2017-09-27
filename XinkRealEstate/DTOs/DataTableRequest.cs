@@ -10,10 +10,10 @@ namespace XinkRealEstate.DTOs
         public int draw { get; set; }
         public int start { get; set; }
         public int length { get; set; }
-        //public object columns { get; set; }
+        public List<object> columns { get; set; }
         public List<Order> order { get; set; }
         public Search search { get; set; }
-        //public int _ { get; set; }
+        public int _ { get; set; }
     }
 
     public class Search

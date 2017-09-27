@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
@@ -39,5 +40,9 @@ namespace XinkRealEstate.Models
 
         [Display(Name = "UpdateOn", ResourceType = typeof(Resource))]
         public DateTime UpdateOn { get; set; }
+
+        [Display(Name = "Visible", ResourceType = typeof(Resource))]
+        [DefaultValue(true)]
+        public bool Visible { get; set; }
     }
 }

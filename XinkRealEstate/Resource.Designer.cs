@@ -149,5 +149,14 @@ namespace XinkRealEstate {
                 return ResourceManager.GetString("UpdateOn", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Visible.
+        /// </summary>
+        public static string Visible {
+            get {
+                return ResourceManager.GetString("Visible", resourceCulture);
+            }
+        }
     }
 }

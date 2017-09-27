@@ -147,4 +147,7 @@
   <data name="UpdateOn" xml:space="preserve">
     <value>Update on</value>
   </data>
+  <data name="Visible" xml:space="preserve">
+    <value>Visible</value>
+  </data>
 </root>
