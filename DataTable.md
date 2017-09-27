@@ -1,4 +1,4 @@
-Fill data cho Datatable từ server side
+Fill data for Datatable from server side
 ==========
 ## Client side
 ### HTML
@@ -30,8 +30,7 @@ $('#example').DataTable({
     contentType: "application/json",
     url: '/Category/GetDataTable',
     data: function (data) {
-        // data trả về từ server, nên có cấu trúc bao gồm các file đã định nghĩa
-        // như trên
+        // data response from server, should be struct like data above
         console.log(JSON.stringify(data));
         return JSON.stringify(data);
     }
@@ -39,7 +38,8 @@ $('#example').DataTable({
 })
 ```
 ### POST data
-Lúc thao tác trên table như chuyển trang, search, sắp xếp thì DataTable sẽ tạo requet tương ứng gửi lên server, Post data có cấu trúc như sau
+When 
+Action from DataTable will sent request to server by Post methods with params struct like below
 ```Javascript
 {
   draw: 1,
@@ -58,17 +58,17 @@ Lúc thao tác trên table như chuyển trang, search, sắp xếp thì DataTab
   columns: [{...}]
 }
 ```
-- `draw` biến dùng để nhận biết và vẽ lại table
-- `start` vị trí bắt đầu lấy dữ liệu
-- `length` số dòng cần lấy
-- `search` object search gồm `value` là từ khóa để search và `regex` (*true* | *false*) để xác định có xử dụng regex hay không
-- `order` mãng các object oder của từng column, mỗi object gồm `column` là index của column tương ứng trên table và `dir` là kiểu sort (*"asc"* | *"desc"*)
-- `columns` mãng chứa option và thông tin khác của các column
+- `draw` sate of draw
+- `start` position where data will be fetched
+- `length` mumber of data (row) you wanto fetch per page
+- `search` object include `value` is search key and `regex` (*true* | *false*) to defind how to use regex
+- `order` array object include oder info of each column, include `column` is index of column on table and `dir` sortt type (*"asc"* | *"desc"*)
+- `columns` array ofject include column info
 
 
 ## Server side
 ### *DataTableRequest* class
-Dựa vào cấu trúc data post lên từ client, ta tạo class tương ứng để xử lý
+Base on post param data struct, we create a corresponding class
 
 ```c#
 public class DataTableRequest
@@ -76,7 +76,7 @@ public class DataTableRequest
     public int draw { get; set; }
     public int start { get; set; }
     public int length { get; set; }
-    // Chưa dùng nên định nghĩa là object
+    // Not use yet, so wil be define by array object
     public List<object> columns { get; set; }
     public List<Order> order { get; set; }
     public Search search { get; set; }
@@ -97,7 +97,7 @@ public class Order
 ```
 
 ### *DataTableResult* class
-Data trả về cũng phải theo một cấu trúc để DataTable phía client có thể hiểu, class `DataTableResult` có cấu trúc tương ứng như sau
+Response data should be struct like below
 
 ```c#
 [JsonObject(Title = "result")]
@@ -129,7 +129,7 @@ public class DataTableResult<T>
     }
 }
 ```
-### Xửa lý request
+### Handle request from client
 
 ```c#
 public class UserController : Controller
@@ -137,16 +137,16 @@ public class UserController : Controller
     [HttpPost]
     public ContentResult GetDataTable(DataTableRequest querry)
     {
-        // Data query từ Users entity
+        // Query data
         var Data = db.Users;
         
         // Search
         string searchkey = querry.search?.value ?? "";
         var searchData = Data.Where(d => d.Name.Contains(searchkey) || d.Code.Contains(searchkey));
         
-        // TODO: Sắp xếp
+        // TODO: short
 
-        // Phân trang
+        // paging
         var pagingData = searchData.ToList().Skip(querry.start).Take(querry.length);
 
         var dataResult = JsonConvert.SerializeObject(queryData.ToList());
@@ -157,7 +157,7 @@ public class UserController : Controller
     }
 }
 
-// Class User nên định nghĩa các json property để Serialize sang json object lúc trả về
+
 [JsonObject(Title = "user")]
 public class User
 {
